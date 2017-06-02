@@ -1,0 +1,10 @@
+{
+	"name": "datadotworld python demo app",
+	"description": "datadotworld python demo app",
+	"keywords": ["datadotworld", "python"],
+	"env": {
+		"DW_AUTH_TOKEN": {
+			"description": "Your data.world token from https://data.world/settings/advanced"
+		}
+	}
+}

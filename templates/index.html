@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spaceapps Demo</title>
+</head>
+<body>
+
+<p>
+    Select two names to generate a graph comparing frequency of babies by year:
+</p>
+<form target="/" method="POST">
+    <select name="a">
+        {% for name in names %}
+        <option>{{name}}</option>
+        {% endfor %}
+    </select>
+    vs
+    <select name="b">
+        {% for name in names %}
+        <option>{{name}}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="compare">
+</form>
+
+</body>
+</html>
