@@ -19,45 +19,68 @@ distinct_names_query = ddw.query('government/us-baby-names-by-yob',
 
 names = sorted([x["Name"] for x in distinct_names_query.table])
 names=names[1:10]
-print names
-counter=0
+
+#Global Variables
+
 ids=[]
-visList=[False]*len(names)
-for n in names:
-    visList[counter]=True
-    print visList
-    ids.append(dict(label='%s' % (n),
+graphData=[]
+
+#this should take the list of all the names and adds to 'ids' and 'graphData'
+def graphingSetup (listofnames):
+    global ids
+    counter=0
+    visList=[True]*len(listofnames)
+    ids.append(dict(label='All',
         args=['visible',visList]))
-    visList[counter]=False
-    #datasets(n,counter)
-    counter+=1
 
-#query = ddw.query('government/us-baby-names-by-yob',
-#                      '''SELECT * FROM `babyNamesUSYOB-mostpopular.csv/babyNamesUSYOB-mostpopular`
-#                                ''')
-#
-#df = query.dataframe
-#print 'line 25'
-##print df
-#dfnum=[i for i in df['Number']]
-##print dfnum
-#names = [i.lower() for i in names]
-#nn = df.set_index('Name')
-#print 'Line 28'
-#print nn
-#nn.index = nn.index.str.lower()
-#print 'Line 31'
-##print nn
-#nn = nn.loc[names, ['YearOfBirth', 'Number']].reset_index()
-#print 'Line 34'
-#print nn
-#nn = nn.groupby(['Name', 'YearOfBirth']).agg('sum').unstack('Name')
-#print 'Line 37'
-##print nn
+    visList=[False]*len(listofnames)
+    for nam in listofnames:
+        visList[counter]=True
+        ids.append(dict(label='%s' % (nam),
+            args=['visible',visList],method='restyle'))
+        visList[counter]=False
+        datasets(nam,counter)
+        counter+=1
 
+#TODO: This is probably very inefficent because it has to query each time.
+#I've been trying to work out how to avoid this but I don't have enough experience with either the dataframes or the data.world api to figure it out yet
+def datasets(nam,num):
+    #setting up the data
+    global graphData
+    query = ddw.query('government/us-baby-names-by-yob',
+                      '''SELECT * FROM `babyNamesUSYOB-mostpopular.csv/babyNamesUSYOB-mostpopular`
+                                WHERE Name = "{}"'''.format(nam))
+    df = query.dataframe
+    numdf=[i for i in df['Number']]
+    yeardf=[i for i in df['YearOfBirth']]
+    graphData.append(
+        Scatter(y=numdf,x=yeardf,line=Line(color='red'),name='%s' % (nam)))
 
+#for readability
+def layoutFormat():
+    layout = Layout(
+        title='Simple Graph',
+        annotations=[dict(text='Change data set',
+                          font=dict(size=18, color='#000000'),
+                          x=-0.19, y=0.85,
+                          xref='paper', yref='paper',
+                          showarrow=False)
+        ],
+        updatemenus=list([
+            dict(x=-0.1, y=0.7,
+                 yanchor='middle',
+                 bgcolor='c7c7c7',
+                 buttons=list(ids)),
+        ]),
+    )
+    return layout
 
+def main():
+    global names
+    graphingSetup(names)
+    layout=layoutFormat()
+    data=Data(graphData)
+    fig = Figure(data=data, layout=layout)
+    my_plot_div = plot(fig, output_type='div')
 
-
-
-
+main()

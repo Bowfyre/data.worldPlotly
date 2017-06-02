@@ -33,6 +33,7 @@ graphData=[]
 
 #this should take the list of all the names and adds to 'ids' and 'graphData'
 def graphingSetup (listofnames):
+    global ids
     counter=0
     visList=[True]*len(listofnames)
     ids.append(dict(label='All',
@@ -50,7 +51,7 @@ def graphingSetup (listofnames):
 #TODO: This is probably very inefficent because it has to query each time.
 #I've been trying to work out how to avoid this but I don't have enough experience with either the dataframes or the data.world api to figure it out yet
 def datasets(nam,num):
-    #setting up the data
+    global graphData
     query = ddw.query('government/us-baby-names-by-yob',
                       '''SELECT * FROM `babyNamesUSYOB-mostpopular.csv/babyNamesUSYOB-mostpopular`
                                 WHERE Name = "{}"'''.format(nam))
@@ -58,9 +59,9 @@ def datasets(nam,num):
     numdf=[i for i in df['Number']]
     yeardf=[i for i in df['YearOfBirth']]
     graphData.append(
-        Scatter(y=numdf,x=yeardf,line=Line(color='red'),name='%s' % (nam),visible=False))
+        Scatter(y=numdf,x=yeardf,line=Line(color='red'),name='%s' % (nam)))
 
-#for readability
+#For readability
 def layoutFormat():
     layout = Layout(
         title='Simple Graph',
@@ -82,6 +83,7 @@ def layoutFormat():
 #Using plotly to take the data and make the graph and using flask to display it to the screen 
 @app.route('/')
 def form():
+    global names
     graphingSetup(names)
     layout=layoutFormat()
     data=Data(graphData)

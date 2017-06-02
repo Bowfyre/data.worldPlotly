@@ -12,23 +12,23 @@ if True: #So I can shrink it
 	c=[10,1,5]
 	datasets=[a,b,c]	
 	sets=[]
-	con=0
+	counter=0
 	ids=[]
 	default=[True]*len(datasets)
 	ids.append(dict(label="All" ,
 		args=['visible',default]))
 	default=[False]*len(datasets)
 	for i in datasets:
-		default[con]=True
+		default[counter]=True
 		
-		ids.append(dict(label="Graph %s" % (con),
+		ids.append(dict(label="Graph %s" % (counter),
 			args=['visible',default
 			]))
 
 		sets.append(
 			Scatter(y=i,line=Line(color='red'),
-				name=con))
-		con+=1
+				name=counter))
+		counter+=1
 		default=[False]*len(datasets)
 	data = Data(sets)
 	
@@ -52,8 +52,7 @@ def test():
 	fig = Figure(data=data, layout=layout)
 	my_plot_div = plot(fig, output_type='div')
 	return render_template('test.html',
-                           div_placeholder=Markup(my_plot_div)
-                          )
+                           div_placeholder=Markup(my_plot_div))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
