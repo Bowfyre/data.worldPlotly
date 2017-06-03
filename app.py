@@ -35,9 +35,10 @@ graphData=[]
 def graphingSetup (listofnames):
     global ids
     counter=0
-    visList=[True]*len(listofnames)
-    ids.append(dict(label='All',
-        args=['visible',visList]))
+    
+    #visList=[True]*len(listofnames)
+    #ids.append(dict(label='All',
+    #    args=['visible',visList]))
 
     visList=[False]*len(listofnames)
     for nam in listofnames:

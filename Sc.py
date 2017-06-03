@@ -18,7 +18,7 @@ distinct_names_query = ddw.query('government/us-baby-names-by-yob',
                         FROM `babyNamesUSYOB-mostpopular.csv/babyNamesUSYOB-mostpopular`''')
 
 names = sorted([x["Name"] for x in distinct_names_query.table])
-names=names[1:10]
+names=names[1:5]
 
 #Global Variables
 
@@ -30,12 +30,15 @@ def graphingSetup (listofnames):
     global ids
     counter=0
     visList=[True]*len(listofnames)
+
     ids.append(dict(label='All',
         args=['visible',visList]))
-
+    
     visList=[False]*len(listofnames)
+    print listofnames
     for nam in listofnames:
         visList[counter]=True
+        print visList
         ids.append(dict(label='%s' % (nam),
             args=['visible',visList],method='restyle'))
         visList[counter]=False
