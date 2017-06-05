@@ -24,7 +24,7 @@ distinct_names_query = ddw.query('government/us-baby-names-by-yob',
                         FROM `babyNamesUSYOB-mostpopular.csv/babyNamesUSYOB-mostpopular`''')
 names = sorted([x["Name"] for x in distinct_names_query.table])
 #because of the inefficency of the datasets method
-names=names[1:50]
+names=names[1:30]
 
 #Global Variable
 graphData=[]
