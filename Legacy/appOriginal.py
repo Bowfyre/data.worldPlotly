@@ -1,3 +1,4 @@
+#This is the original file
 import os
 from io import BytesIO
 
@@ -23,8 +24,7 @@ mstyle.use('fivethirtyeight')
 
 # load the data.world API token from an environment variable
 currently using my token directly in the code 
-#ddw = DataDotWorld(config=(eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwcm9kLXVzZXItY2xpZW50OmJvd2Z5cmUiLCJpc3MiOiJhZ2VudDpib3dmeXJlOjpkN2NlYWQxNy0xN2E0LTRhMGYtYjg4MS1hNzZjZDA5MjBlYzAiLCJpYXQiOjE0OTM2NzU2NjYsInJvbGUiOlsidXNlcl9hcGlfd3JpdGUiLCJ1c2VyX2FwaV9yZWFkIl0sImdlbmVyYWwtcHVycG9zZSI6dHJ1ZX0.BNJwIEvf4bamLffbNYQdTohs1wcuU1XedFNI9QhmWgR9XxvDSs8tQMN449gFEqa6Og_pLn1qHlOeVuFgI5CoGw))
-#ddw = DataDotWorld(config=EnvConfig())
+ddw = DataDotWorld(config=EnvConfig())
 
 # grab and sort the list of all distinct names from the dataset
 distinct_names_query = ddw.query('government/us-baby-names-by-yob',

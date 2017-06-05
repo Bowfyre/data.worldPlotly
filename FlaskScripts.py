@@ -1,8 +1,11 @@
+#This file is intended for testing purposes only
+
 import os
 from flask import Flask, render_template, Markup
 from plotly.offline import plot
 
 from plotly.graph_objs import *
+import plotly
 
 # use the datadotworld python library to connect to data.world
 from datadotworld.config import EnvConfig
@@ -29,34 +32,42 @@ names=names[1:5]
 #Global Variables
 
 ids=[]
-graphData=[]
 ids2=[]
+graphData=[]
 
-#this should take the list of all the names and adds to 'ids' and 'graphData'
+
 def graphingSetup (listofnames):
     global ids
     counter=0
-    visList=[True]*len(listofnames)
+    vis=[True]*len(listofnames)
     ids.append(dict(label='All',
-        args=['visible',visList]))
-    visList1=[True,False,False,False]
-    visList2=[False, True, False, False]
-    ids2.append(dict(label='First',
-        args=['visible',visList1]))
-    ids2.append(dict(label='Second',
-        args=['visible',visList2]))
-    visList=[False]*len(listofnames)
-    
+        args=['visible',vis]))
+    ids.append(dict(label='None',
+        args=['visible',[False,False,False]]))#Even though there are 4 plots, this makes everything, not shown
+    ids.append(dict(label='Only 1',
+        args=['visible',[False,'',True]]))#for some reason it takes '' as True and disregards the extra
+    ids.append(dict(label='Change 1',
+        args=['visible',[False]]))#As if you set them all to false
+
+    vis=[True]*len(listofnames)
+    ids.append(dict(label='All',args=['visible',vis]))
     for nam in listofnames:
+        visList=[False]*len(listofnames)
         visList[counter]=True
         ids.append(dict(label='%s' % (nam),
-            args=['visible',visList1],method='restyle'))
-        visList[counter]=False
+            args=['visible',visList]))
+        ids2.append(dict(label='%s' % (nam),
+            args=['visible',visList]))
         datasets(nam,counter)
         counter+=1
 
-#TODO: This is probably very inefficent because it has to query each time.
-#I've been trying to work out how to avoid this but I don't have enough experience with either the dataframes or the data.world api to figure it out yet
+    #for nam in listofnames:
+    #    #visList[counter]=True
+    #    datasets(nam,counter)
+    #    ids.append(dict(label='%s' % (nam),
+    #        args=[ dict(visible=True, **graphData[counter]) ]))
+    #    counter+=1
+
 def datasets(nam,num):
     global graphData
     query = ddw.query('government/us-baby-names-by-yob',
@@ -90,6 +101,48 @@ def layoutFormat():
         ]),
     )
     return layout
+
+if False:# An atempt at buttons
+	shape1 = {
+	            'type': 'circle',
+	            'xref': 'x', 'yref': 'y',
+	            'x0': 0, 'y0': 0, 'x1': 1, 'y1': 1,
+	            'line': {'color': 'rgb(0, 0, 255)'}
+	        }
+	shape2 = {
+	            'type': 'circle',
+	            'xref': 'x', 'yref': 'y',
+	            'x0': 0, 'y0': 0, 'x1': 0.5, 'y1': 0.5,
+	            'line': {'color': 'rgb(255, 0, 255)'}
+	        }
+	
+	trace0 = plotly.graph_objs.Scatter(
+	    x= [0.2, 0.2, 0.3, 0.4, 0.2],
+	    y= [0.2, 0.5, 0.8, 0.3, 0.2]
+	)
+	
+	data = plotly.graph_objs.Data([trace0])
+	layout = plotly.graph_objs.Layout(shapes=[shape1, shape2])
+	fig = plotly.graph_objs.Figure(data=data, layout=layout)
+	fig['layout']['shapes'].append(dict(visible=True, **shape1))
+	fig['layout']['shapes'].append(dict(visible=True, **shape2))
+	
+	
+	fig['layout']['updatemenus'] = [dict(
+	        x=-0.05, y=0.8,
+	        buttons=[
+	            dict(args=['shapes.visible', [False, True]], label='Hide big - does not work', method='relayout'),
+	            dict(args=['shapes.visible', [True, False]], label='Hide small - does not work', method='relayout'),
+	            dict(args=['shapes[0].visible', False], label='Hide big - might work', method='relayout'),
+	            dict(args=['shapes[1].visible', False], label='Hide small - might work', method='relayout'),
+	            dict(args=['shapes[0].visible', True], label='Show big', method='relayout'),
+	            dict(args=['shapes[1].visible', True], label='Show small', method='relayout'),
+	            dict(args=['shapes', [dict(visible=True, **shape1), dict(visible=True, **shape2)]], label='Show all', method='relayout'),
+	            dict(args=['shapes', [dict(visible=False, **shape1), dict(visible=False, **shape2)]], label='Hide all', method='relayout'),
+	            dict(args=['shapes', [dict(visible=True, **shape1), dict(visible=False, **shape2)]], label='Show big, hide small', method='relayout'),
+	            dict(args=['shapes', [dict(visible=False, **shape1), dict(visible=True, **shape2)]], label='Hide big, show small', method='relayout')
+	        ]
+	    )]
 
 #Using plotly to take the data and make the graph and using flask to display it to the screen 
 @app.route('/')

@@ -24,60 +24,37 @@ distinct_names_query = ddw.query('government/us-baby-names-by-yob',
                         FROM `babyNamesUSYOB-mostpopular.csv/babyNamesUSYOB-mostpopular`''')
 names = sorted([x["Name"] for x in distinct_names_query.table])
 #because of the inefficency of the datasets method
-names=names[1:10]
+names=names[1:50]
 
-#Global Variables
-
-ids=[]
+#Global Variable
 graphData=[]
 
-#this should take the list of all the names and adds to 'ids' and 'graphData'
-def graphingSetup (listofnames):
-    global ids
-    counter=0
-    
-    #visList=[True]*len(listofnames)
-    #ids.append(dict(label='All',
-    #    args=['visible',visList]))
-
-    visList=[False]*len(listofnames)
-    for nam in listofnames:
-        visList[counter]=True
-        ids.append(dict(label='%s' % (nam),
-            args=['visible',visList],method='restyle'))
-        visList[counter]=False
-        datasets(nam,counter)
-        counter+=1
-
-#TODO: This is probably very inefficent because it has to query each time.
+#This is horibly inefficent because it has to query each time.
 #I've been trying to work out how to avoid this but I don't have enough experience with either the dataframes or the data.world api to figure it out yet
-def datasets(nam,num):
+#The only way I can see to get past this with my current expertise is to just write it all to a csv and just read from there but it might be kinda against the point and Im not sure if it would work with heroku
+#In addition, as far as I can tell, there is no way to only query the data you want and still have it in plotly
+def datasets(listofnames):
     global graphData
-    query = ddw.query('government/us-baby-names-by-yob',
-                      '''SELECT * FROM `babyNamesUSYOB-mostpopular.csv/babyNamesUSYOB-mostpopular`
-                                WHERE Name = "{}"'''.format(nam))
-    df = query.dataframe
-    numdf=[i for i in df['Number']]
-    yeardf=[i for i in df['YearOfBirth']]
-    graphData.append(
-        Scatter(y=numdf,x=yeardf,line=Line(color='red'),name='%s' % (nam)))
+    for nam in listofnames:
+    	query = ddw.query('government/us-baby-names-by-yob',
+    	                  '''SELECT * FROM `babyNamesUSYOB-mostpopular.csv/babyNamesUSYOB-mostpopular`
+    	                            WHERE Name = "{}"'''.format(nam))
+    	df = query.dataframe
+    	numdf=[i for i in df['Number']]
+    	yeardf=[i for i in df['YearOfBirth']]
+    	graphData.append(
+    	    Scatter(y=numdf,x=yeardf,line=Line(color='red'),name='%s' % (nam),visible="legendonly"))
 
 #For readability
 def layoutFormat():
     layout = Layout(
-        title='Simple Graph',
+        title='Name Comparison',
         annotations=[dict(text='Change data set',
                           font=dict(size=18, color='#000000'),
-                          x=-0.19, y=0.85,
+                          x=1.00, y=1.00,
                           xref='paper', yref='paper',
                           showarrow=False)
         ],
-        updatemenus=list([
-            dict(x=-0.1, y=0.7,
-                 yanchor='middle',
-                 bgcolor='c7c7c7',
-                 buttons=list(ids)),
-        ]),
     )
     return layout
 
@@ -85,7 +62,7 @@ def layoutFormat():
 @app.route('/')
 def form():
     global names
-    graphingSetup(names)
+    datasets(names)
     layout=layoutFormat()
     data=Data(graphData)
     fig = Figure(data=data, layout=layout)
